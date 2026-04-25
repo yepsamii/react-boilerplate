@@ -40,7 +40,6 @@ jobs:
 
       - name: Update Image Tag
         run: |
-          cd gitops
           # Update the image tag in deployment file
           sed -i "s|image: yepsamii/fe-boilerplate:.*|image: yepsamii/fe-boilerplate:v1.${{ github.run_number }}|" fe-boilerplate/deployment.yml
 
