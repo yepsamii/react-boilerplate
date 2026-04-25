@@ -25,6 +25,9 @@ jobs:
           context: .
           push: true
           tags: yepsamii/fe-boilerplate:v1.${{ github.run_number }}
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   update-ingressRepo:
     name: Update GitOps Repository
