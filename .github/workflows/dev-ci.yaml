@@ -1,0 +1,60 @@
+name: staging-ci
+on:
+  push:
+    branches:
+      - dev
+jobs:
+  build-and-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Application Code
+        uses: actions/checkout@v4
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: yepsamii/fe-boilerplate:v1.${{ github.run_number }}
+
+  update-ingressRepo:
+    name: Update GitOps Repository
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Deployment Repository
+        uses: actions/checkout@v4
+        with:
+          repository: yepsamii/gitops
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+          path: ingress-deployment
+
+      - name: Update Image Tag
+        run: |
+          cd gitops
+          # Update the image tag in deployment file
+          sed -i "s|image: yepsamii/fe-boilerplate:.*|image: yepsamii/fe-boilerplate:v1.${{ github.run_number }}|" fe-boilerplate/deployment.yml
+
+          # Print the change for verification
+          echo "Updated image tag to: yepsamii/fe-boilerplate:v1.${{ github.run_number }}"
+
+          # Verify the change
+          grep "image: yepsamii/fe-boilerplate" fe-boilerplate/deployment.yml
+
+      - name: Commit and Push Changes
+        run: |
+          cd ingress-deployment
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add fe-boilerplate/deployment.yml
+          git commit -m "Update frontend image tag to v1.${{ github.run_number }} [skip ci]"
+          git push
