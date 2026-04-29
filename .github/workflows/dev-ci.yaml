@@ -29,20 +29,14 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  update-ingressRepo:
-    name: Update GitOps Repository
+  update-deployment-repo:
+    name: Checkout Deployment Repository (GitLab)
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Deployment Repository
-        uses: actions/checkout@v4
-        with:
-          repository: https://gitlab.com/learn-things1/argocd-basic
-          token: ${{ secrets.REPO_ACCESS_TOKEN }}
-          path: argocd-basic
-
-      - name: Update Image Tag
         run: |
+          git clone https://${{ secrets.REPO_ACCESS_TOKEN }}@gitlab.com/learn-things1/argocd-basic.git argocd-basic
           cd argocd-basic
           # Update the image tag in deployment file
           sed -i "s|image: yepsamii/fe-boilerplate:.*|image: yepsamii/fe-boilerplate:v1.${{ github.run_number }}|" fe-boilerplate/deployment.yaml
