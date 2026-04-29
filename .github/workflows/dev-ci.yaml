@@ -37,13 +37,13 @@ jobs:
       - name: Checkout Deployment Repository
         uses: actions/checkout@v4
         with:
-          repository: yepsamii/gitops
+          repository: https://gitlab.com/learn-things1/argocd-basic
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
-          path: gitops
+          path: argocd-basic
 
       - name: Update Image Tag
         run: |
-          cd gitops
+          cd argocd-basic
           # Update the image tag in deployment file
           sed -i "s|image: yepsamii/fe-boilerplate:.*|image: yepsamii/fe-boilerplate:v1.${{ github.run_number }}|" fe-boilerplate/deployment.yaml
 
@@ -55,7 +55,7 @@ jobs:
 
       - name: Commit and Push Changes
         run: |
-          cd gitops
+          cd argocd-basic
           git config --global user.name 'GitHub Actions Bot'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add .
