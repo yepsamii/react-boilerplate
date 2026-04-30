@@ -25,6 +25,9 @@ jobs:
           context: .
           push: true
           tags: yepsamii/fe-boilerplate:v1.${{ github.run_number }}
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   update-ingressRepo:
     name: Update GitOps Repository
@@ -36,25 +39,25 @@ jobs:
         with:
           repository: yepsamii/gitops
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
-          path: ingress-deployment
+          path: gitops
 
       - name: Update Image Tag
         run: |
           cd gitops
           # Update the image tag in deployment file
-          sed -i "s|image: yepsamii/fe-boilerplate:.*|image: yepsamii/fe-boilerplate:v1.${{ github.run_number }}|" fe-boilerplate/deployment.yml
+          sed -i "s|image: yepsamii/fe-boilerplate:.*|image: yepsamii/fe-boilerplate:v1.${{ github.run_number }}|" fe-boilerplate/deployment.yaml
 
           # Print the change for verification
           echo "Updated image tag to: yepsamii/fe-boilerplate:v1.${{ github.run_number }}"
 
           # Verify the change
-          grep "image: yepsamii/fe-boilerplate" fe-boilerplate/deployment.yml
+          grep "image: yepsamii/fe-boilerplate" fe-boilerplate/deployment.yaml
 
       - name: Commit and Push Changes
         run: |
-          cd ingress-deployment
+          cd gitops
           git config --global user.name 'GitHub Actions Bot'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add fe-boilerplate/deployment.yml
-          git commit -m "Update frontend image tag to v1.${{ github.run_number }} [skip ci]"
+          git add .
+          git commit -m "Update fe-boilerplate image tag to v1.${{ github.run_number }} [skip ci]"
           git push
