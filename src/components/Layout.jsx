@@ -6,7 +6,8 @@ const Layout = ({ children }) => {
   const navLinks = [
     { path: '/', label: 'Home' },
     { path: '/about', label: 'About' },
-    { path: '/users', label: 'Users' }
+    { path: '/users', label: 'Users' },
+    { path: '/root', label: 'Root-Admin' }
   ];
 
   return (
